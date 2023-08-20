@@ -68,24 +68,28 @@ class TetrisAgent:
         self.board = np.zeros((self.board_height, self.board_width))
 
     def rotate(self, rotate_matrix):
+        if self.now_piece.piece_number == 5:
+            self.update_pos = None
+            self.update_success = False
+            return False
         located_position = np.dot(rotate_matrix, self.now_piece.position)
         new_position = located_position + self.now_piece.center
-        if not self.locatable(new_position) or self.now_piece.piece_number == 5:
+        can_rotate, new_position, move = self.locatable_for_rotate(new_position)
+        if not can_rotate:
             self.update_pos = None
             self.update_success = False
             return False
         self.locate(self.now_piece.position + self.now_piece.center, new_position, -1)
         self.now_piece.position = located_position
+        self.now_piece.center += move
         self.make_highlight()
         return True
 
     def rotate_right(self):
-        self.rotate(self.rotate_left_matrix)
-        return True
+        return self.rotate(self.rotate_left_matrix)
 
     def rotate_left(self):
-        self.rotate(self.rotate_right_matrix)
-        return True
+        return self.rotate(self.rotate_right_matrix)
 
     def move_down(self):
         if not self.move(self.down, highlight=False):
@@ -128,6 +132,37 @@ class TetrisAgent:
         if self.board[y, x].max() > 0:
             return False
         return True
+
+    def locatable_for_rotate(self, new_position):
+        y, x = new_position
+        y_min, y_max, x_min, x_max = y.min(), y.max(), x.min(), x.max()
+        if y_max >= self.board_height:
+            return False, None, None
+        if y_min <= -1:
+            update = self.down * abs(y_min)
+            temp_position = new_position + update
+            if self.locatable(temp_position):
+                return True, temp_position, update
+            else:
+                return False, None, None
+        elif x_max >= self.board_width:
+            update = self.left * (x_max - self.board_width + 1)
+            temp_position = new_position + update
+            if self.locatable(temp_position):
+                return True, temp_position, update
+            else:
+                return False, None, None
+        elif x_min <= -1:
+            update = self.right * abs(x_min)
+            temp_position = new_position + update
+            if self.locatable(temp_position):
+                return True, temp_position, update
+            else:
+                return False, None, None
+        else:
+            if self.board[y, x].max() > 0:
+                return False, None, None
+            return True, new_position, self.no_move
 
     def locate(self, old_position, new_position, num):
         y, x = old_position

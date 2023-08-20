@@ -20,12 +20,12 @@ class TetrisPlay:
         self.canvas_height = self.rec_size * self.tetris_agent.board_height + 20
         self.canvas_width = self.rec_size * self.tetris_agent.board_width + 20
         self.side_canvas_width = self.side_rec_size * self.side_canvas_length
-        self.set_root()
         self.board_rectangle_dic = {}
         self.hold_rectangle_dic = {}
         self.next_block_rectangle_dic = {}
         self.white = self.tetris_agent.piece_color[0]
         self.highlight_color = self.tetris_agent.piece_color[8]
+        self.set_root()
         pass
 
     def set_root(self):
@@ -48,14 +48,25 @@ class TetrisPlay:
         self.hold_canvas.pack(side="left")
         self.board_canvas.pack(side="left")
         self.next_block_canvas.pack(side="left")
+        self.create_board()
+        self.create_side(True)
+        self.create_side(False)
 
     def move_down(self, auto=True):
-        if self.tetris_agent.end:
-            return
+        self.reset()
+
         if self.tetris_agent.move_down():
             self.draw_board()
+        self.tetris_agent.update_success = False
         if auto:
-            self.root.after(300, self.move_down)
+            self.root.after(1000, self.move_down)
+
+    def reset(self):
+        if self.tetris_agent.end:
+            self.tetris_agent.reset()
+            self.draw_board()
+            self.tetris_agent.set_random_block()
+            self.draw_board()
 
     def move_left(self):
         if self.tetris_agent.move_left():
@@ -84,10 +95,10 @@ class TetrisPlay:
     def change_color(self, key, color):
         self.board_canvas.itemconfig(self.board_rectangle_dic[key], fill=color)
 
-    def change_side_piece_color(self, key, color, next_piece=True):
+    def change_side_piece_color(self, key, color, outline, next_piece=True):
         canvas = self.next_block_canvas if next_piece else self.hold_canvas
         dic = self.next_block_rectangle_dic if next_piece else self.hold_rectangle_dic
-        canvas.itemconfig(dic[key], fill=color)
+        canvas.itemconfig(dic[key], fill=color, outline=outline)
 
     def draw_board(self):
         if self.tetris_agent.next_block_changed:
@@ -96,7 +107,6 @@ class TetrisPlay:
             self.draw_hold()
         if self.tetris_agent.highlight_change:
             self.draw_highlight()
-        blank = self.tetris_agent.upper_blank
         if self.tetris_agent.update_success:
             y, x = self.tetris_agent.update_pos
             for s, t in zip(y, x):
@@ -104,21 +114,20 @@ class TetrisPlay:
                 if key in self.board_rectangle_dic:
                     self.change_color(key, self.tetris_agent.piece_color[abs(self.tetris_agent.board[s, t])])
             return
-        for h in range(blank, self.tetris_agent.board_height + blank):
+        for h in range(self.tetris_agent.board_height):
             for w in range(self.tetris_agent.board_width):
                 key = (h, w)
                 self.change_color(key, self.tetris_agent.piece_color[abs(self.tetris_agent.board[h, w])])
 
     def create_board(self):
-        blank = self.tetris_agent.upper_blank
-        for h in range(blank, self.tetris_agent.board_height + blank):
+        for h in range(self.tetris_agent.board_height):
             for w in range(self.tetris_agent.board_width):
                 key = (h, w)
                 self.board_rectangle_dic[key] = self.board_canvas.create_rectangle(
                     w * self.rec_size,
-                    (h - blank) * self.rec_size,
+                    h * self.rec_size,
                     (w + 1) * self.rec_size,
-                    (h - blank + 1) * self.rec_size,
+                    (h + 1) * self.rec_size,
                     fill=self.tetris_agent.piece_color[abs(self.tetris_agent.board[h, w])],
                     outline="black",
                     width=1
@@ -152,23 +161,25 @@ class TetrisPlay:
         if self.tetris_agent.deleted_next_mino is not None:
             y, x = self.tetris_agent.deleted_next_mino
             for s, t in zip(y, x):
-                self.change_side_piece_color((s, t), self.white)
+                self.change_side_piece_color((s, t), self.white, outline="")
         y, x = self.tetris_agent.next_piece.position + self.tetris_agent.next_block_center
         for s, t in zip(y, x):
             self.change_side_piece_color((s, t),
-                                         self.tetris_agent.piece_color[self.tetris_agent.next_piece.piece_number])
+                                         self.tetris_agent.piece_color[self.tetris_agent.next_piece.piece_number],
+                                         outline="black"
+                                         )
         self.tetris_agent.next_block_changed = False
 
     def draw_hold(self):
         if self.tetris_agent.deleted_hold_mino is not None:
             y, x = self.tetris_agent.deleted_hold_mino
             for s, t in zip(y, x):
-                self.change_side_piece_color((s, t), self.white, next_piece=False)
+                self.change_side_piece_color((s, t), self.white, next_piece=False, outline="")
         y, x = self.tetris_agent.hold_piece.position + self.tetris_agent.next_block_center
         for s, t in zip(y, x):
             self.change_side_piece_color((s, t),
                                          self.tetris_agent.piece_color[self.tetris_agent.hold_piece.piece_number],
-                                         next_piece=False)
+                                         next_piece=False, outline="black")
         self.tetris_agent.hold_block_changed = False
 
     def draw_highlight(self):
