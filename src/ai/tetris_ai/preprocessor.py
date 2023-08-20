@@ -1,4 +1,6 @@
 import numpy as np
+import time
+
 from src.ai.tetris_ai.loader import TetrisConfLoader
 from src.tools import common
 
@@ -59,7 +61,7 @@ class TetrisPreprocessor:
         """
         削除される行数を計算する
         """
-        return np.all(array == 1, axis=0).sum() + 0.001
+        return np.all(array == 1, axis=0).sum()
 
     def make_input(self, board):
         """
@@ -81,8 +83,8 @@ class TetrisPreprocessor:
             height.max(),
             height.min(),
             height.mean()
-        ])
-        
+        ]) / 20
+
 
 def calc_height_std(height):
     height_temp = np.delete(height, np.argmin(height))
@@ -93,8 +95,9 @@ def calc_delete_lines(array):
     return np.all(array == 1, axis=0).sum()
 
 
-x = np.array([1, 1, 1])
-print(x)
+x = np.random.randint(2, size=(20, 10))
 
-print(calc_height_std(x))
-print(type(calc_height_std(x)))
+p = TetrisPreprocessor()
+start = time.time()
+print(p.make_input(x))
+print(time.time() - start)
