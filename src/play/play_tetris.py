@@ -59,7 +59,7 @@ class TetrisPlay:
             self.draw_board()
         self.tetris_agent.update_success = False
         if auto:
-            self.root.after(1000, self.move_down)
+            self.root.after(400, self.move_down)
 
     def reset(self):
         if self.tetris_agent.end:
