@@ -1,6 +1,7 @@
 import numpy as np
 from src.ai.boards.agent_for_show import TetrisAgent
 from src.agent.conf_loader import TetrisConfLoader
+from src.tools.common import hash_array
 
 
 class TetrisBoardReader:
@@ -16,18 +17,78 @@ class TetrisBoardReader:
         loader = TetrisConfLoader()
         self.minos = loader.get_minos()
         self.start = np.array([[0], [2]])
+        self.seen = set()
 
-    def read(self, board_agent: TetrisAgent):
-        return
+    def read(self, agent: TetrisAgent):
+        board = agent.board.copy()
+        board[board > 0] = 1
+        piece_number, position = agent.now_piece.piece_number, agent.now_piece.position
+        board_list = self.read_of_piece(board, position, piece_number)
+        if agent.hold_piece is None:
+            next_piece_number, position = agent.next_piece.piece_number, agent.next_piece.position
+        else:
+            next_piece_number, position = agent.hold_piece.piece_number, agent.hold_piece.position
+        if next_piece_number != piece_number:
+            board_list += self.read_of_piece(board=board, position=position, piece_number=piece_number)
+        return board_list
 
-    def drop_board(self, board: np.array, new_position) -> np.array:
-        # 落とし切った盤面を返す
+    def read_of_piece(self, board, position, piece_number):
+        board_list = []
+        self.seen = set()
+
+        if piece_number == 2:
+            num_rotate = 2
+        elif piece_number == 5:
+            num_rotate = 1
+        else:
+            num_rotate = 4
+
+        new_position = position + self.start
+        for i in range(num_rotate):
+            new_position = self.adjust_start_position(new_position)
+            while self.locatable(board=board, new_position=new_position):
+                board_list += self.drop_board(board=board, origin_position=new_position)
+                new_position += self.right
+            if i == num_rotate - 1:
+                break
+            new_position, position = self.rotate_right(position=position, board=board, center=self.start)
+            if new_position is None:
+                break
+        return board_list
+
+    def get_drop_position(self, board, new_position):
+
         while True:
             new_position += self.down
             if not self.locatable(new_position, board):
                 new_position -= self.down
                 break
-        return self.locate(new_position=new_position, board=board)
+        return new_position
+
+    def drop_board(self, board: np.array, origin_position) -> np.array:
+        # 落とし切った盤面を返す、落とし切った後左右に動かせる場合はそれも渡す、返却はリスト
+        return_array = []
+
+        def move_and_add_hash(move):
+            for i in range(1, 3):
+                move_position = new_position + move * i
+                if not self.locatable(move_position, board):
+                    break
+                move_position = self.get_drop_position(board=board, new_position=move_position)
+                hash_arr = hash_array(move_position)
+                if hash_arr in self.seen:
+                    break
+                self.seen.add(hash_arr)
+                return_array.append(self.locate(new_position=move_position, board=board))
+
+        new_position = self.get_drop_position(board=board, new_position=origin_position.copy())
+        origin_hash = hash_array(new_position)
+        if origin_hash not in self.seen:
+            self.seen.add(origin_hash)
+            return_array.append(self.locate(new_position=new_position, board=board))
+        move_and_add_hash(self.left)
+        move_and_add_hash(self.right)
+        return return_array
 
     def locatable(self, new_position, board):
         if new_position.min() < 0:
@@ -53,11 +114,9 @@ class TetrisBoardReader:
         :param center:
         :return:
         """
-        # if self.now_piece.piece_number == 5:
-        #     return
         located_position = np.dot(rotate_matrix, position)
         new_position = located_position + center
-        return self.locatable_for_rotate(new_position=new_position, board=board)
+        return self.locatable_for_rotate(new_position=new_position, board=board), located_position
 
     def rotate_right(self, board, position, center):
         return self.rotate(rotate_matrix=self.rotate_left_matrix, board=board, position=position, center=center)
@@ -89,31 +148,37 @@ class TetrisBoardReader:
             else:
                 return
         else:
-            if not np.all(board[y, x] == 0):
+            if np.all(board[y, x] == 0):
                 return new_position
 
     @staticmethod
     def adjust_start_position(new_position):
         while new_position[1].min() > 0:
             new_position[1] -= 1
+        return new_position
 
 
-p = TetrisBoardReader()
-
-col = p.minos[7] + np.array([[0], [6]])
-board = np.zeros((20, 10))
-import time
-
-start = time.time()
-
-col = p.rotate_right(board, col, np.array([[0],[0]]))
-temp = p.adjust_start_position(col)
-col = p.rotate_right(board, col, np.array([[0],[0]]))
-temp = p.adjust_start_position(col)
-col = p.rotate_right(board, col, np.array([[0],[0]]))
-temp = p.adjust_start_position(col)
-col = p.rotate_right(board, col, np.array([[0],[0]]))
-temp = p.adjust_start_position(col)
-
-p.drop_board(board, col)
-print(time.time() - start)
+# p = TetrisBoardReader()
+#
+# col = p.minos[7]
+# board = np.zeros((20, 10))
+#
+# base = np.array([[0], [2]])
+# # for i in p.minos.values():
+# #     y, x = base + i
+# #     b_copy = board.copy()
+# #     b_copy[y, x] = 1
+# board[np.array([18, 18, 19]), np.array([1, 2, 1])] = 2
+# import time
+#
+# start = time.time()
+#
+# col = p.rotate_right(board, col, np.array([[5], [5]]))
+# temp = p.adjust_start_position(col[0])
+#
+# c = p.read_of_piece(board=board, position=col[0], piece_number=7)
+# print(len(c))
+# for i in c:
+#     print(i)
+#     print("=" * 30)
+# print(time.time() - start)
