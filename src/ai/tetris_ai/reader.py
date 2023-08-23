@@ -17,9 +17,14 @@ class TetrisBoardReader:
         loader = TetrisConfLoader()
         self.minos = loader.get_minos()
         self.start = np.array([[0], [2]])
-        self.seen = set()
+        self.state = State()
+        self.piece_state = PieceState()
+
+    def reset(self):
+        self.state.reset()
 
     def read(self, agent: TetrisAgent):
+        self.reset()
         board = agent.board.copy()
         board[board > 0] = 1
         board[board < 0] = 0
@@ -30,12 +35,12 @@ class TetrisBoardReader:
         else:
             next_piece_number, position = agent.hold_piece.piece_number, agent.hold_piece.position
         if next_piece_number != piece_number:
+            self.state.hold = True
             board_list += self.read_of_piece(board=board, position=position, piece_number=piece_number)
         return board_list
 
     def read_of_piece(self, board, position, piece_number):
         board_list = []
-        self.seen = set()
 
         if piece_number == 2:
             num_rotate = 2
@@ -46,8 +51,10 @@ class TetrisBoardReader:
 
         new_position = position + self.start
         for i in range(num_rotate):
+            self.piece_state.num_rotate = i
             new_position = self.adjust_start_position(new_position)
             while self.locatable(board=board, new_position=new_position):
+                self.piece_state.drop_start_position = new_position
                 board_list += self.drop_board(board=board, origin_position=new_position)
                 new_position += self.right
             if i == num_rotate - 1:
@@ -66,29 +73,45 @@ class TetrisBoardReader:
                 break
         return new_position
 
+    @staticmethod
+    def has_upper_block(board, position, left):
+        y, x = position
+        if y.min() == 0:
+            return False
+        temp = x.min() if left else x.max()
+        return board[y[x == temp].min() - 1, temp] > 0
+
     def drop_board(self, board: np.array, origin_position) -> np.array:
         # 落とし切った盤面を返す、落とし切った後左右に動かせる場合はそれも渡す、返却はリスト
         return_array = []
 
-        def move_and_add_hash(move):
+        def move_and_add_hash(left):
+            move = self.left if left else self.right
             for i in range(1, 3):
                 move_position = new_position + move * i
                 if not self.locatable(move_position, board):
                     break
-                move_position = self.get_drop_position(board=board, new_position=move_position)
-                hash_arr = hash_array(move_position)
-                if hash_arr in self.seen:
+                if not self.has_upper_block(board=board, position=move_position, left=left):
                     break
-                self.seen.add(hash_arr)
+                hash_arr = hash_array(move_position)
+                if hash_arr in self.state.seen:
+                    break
+                self.state.seen.add(hash_arr)
+                self.state.history.append(
+                    (self.state.hold, self.piece_state.num_rotate, self.piece_state.drop_start_position.copy(),
+                     move[1] * i))
                 return_array.append(self.locate(new_position=move_position, board=board))
 
         new_position = self.get_drop_position(board=board, new_position=origin_position.copy())
         origin_hash = hash_array(new_position)
-        if origin_hash not in self.seen:
-            self.seen.add(origin_hash)
+        if origin_hash not in self.state.seen:
+            self.state.seen.add(origin_hash)
+            # 盤面操作用の状態管理
+            self.state.history.append(
+                (self.state.hold, self.piece_state.num_rotate, self.piece_state.drop_start_position.copy(), None))
             return_array.append(self.locate(new_position=new_position, board=board))
-        move_and_add_hash(self.left)
-        move_and_add_hash(self.right)
+        move_and_add_hash(True)
+        move_and_add_hash(False)
         return return_array
 
     def locatable(self, new_position, board):
@@ -157,6 +180,38 @@ class TetrisBoardReader:
         while new_position[1].min() > 0:
             new_position[1] -= 1
         return new_position
+
+
+class State:
+    def __init__(self):
+        self.seen = set()
+        self.history = []
+        self.hold = False
+
+    def reset(self):
+        self.seen = set()
+        self.history = []
+        self.hold = False
+
+    def add_history(self, his):
+        self.history.append(his)
+
+    def get_history(self):
+        return self.history
+
+    def add_seen(self, hash_board):
+        self.seen.add(hash_board)
+
+
+class PieceState:
+    def __init__(self):
+        self.num_rotate = None
+        self.drop_start_position = None
+
+    def reset(self):
+        self.num_rotate = None
+        self.drop_start_position = None
+
 
 # p = TetrisBoardReader()
 #

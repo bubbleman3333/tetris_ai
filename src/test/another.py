@@ -1,11 +1,2 @@
-def test(arr):
-    def aiueo():
-        print(arr)
-    aiueo()
-    arr = arr + 1
-    aiueo()
+from src.tools.common import hash_array
 
-
-import numpy as np
-
-test(np.zeros(3))
