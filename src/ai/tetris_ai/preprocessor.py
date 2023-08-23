@@ -34,7 +34,7 @@ class TetrisPreprocessor:
         """
         # 　穴の数をカウントする
         col_to_bytes = [common.hash_array(arr) for arr in array.T]
-        return sum([self.hole_height_dic(col) for col in col_to_bytes])
+        return sum([self.hole_height_dic[col] for col in col_to_bytes])
 
     @staticmethod
     def calc_height_std(height) -> np.float64:
@@ -77,27 +77,10 @@ class TetrisPreprocessor:
         height = self.calculate_col_height(board)
         return np.array([
             self.calc_delete_lines(board) * 5,  # 削除数は最大で4のため1/4でスケーリングする
-            self.calc_delete_lines(board) * 0.1,  # 穴の数は最大で200のため、1/200でスケーリングする
+            self.calc_hole_num(board) * 0.1,  # 穴の数は最大で200のため、1/200でスケーリングする
             self.calc_height_std(height),
             self.calc_average_diff(height),
             height.max(),
             height.min(),
             height.mean()
         ]) / 20
-
-
-def calc_height_std(height):
-    height_temp = np.delete(height, np.argmin(height))
-    return np.var(height_temp)
-
-
-def calc_delete_lines(array):
-    return np.all(array == 1, axis=0).sum()
-
-
-x = np.random.randint(2, size=(20, 10))
-
-p = TetrisPreprocessor()
-start = time.time()
-print(p.make_input(x))
-print(time.time() - start)

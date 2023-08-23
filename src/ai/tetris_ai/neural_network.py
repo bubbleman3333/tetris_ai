@@ -98,17 +98,17 @@ class MeanSquaredError:
         return d_loss
 
 
-nn = NeuralNetWork(10, 100)
-num_target = 10
-x = np.random.rand(16, 10)
-t = np.arange(-5, 1 + num_target).reshape((16, 1))
-for i in range(100):
-    nn.train(x, t)
-
-# print(nn.forward(x))
-# import matplotlib.pyplot as plt
+# nn = NeuralNetWork(10, 100)
+# num_target = 10
+# x = np.random.rand(16, 10)
+# t = np.arange(-5, 1 + num_target).reshape((16, 1))
+# for i in range(100):
+#     nn.train(x, t)
 #
-# plt.plot(np.arange(len(nn.loss_list)),nn.loss_list)
-# plt.show()
-
-print(nn.forward(x))
+# # print(nn.forward(x))
+# # import matplotlib.pyplot as plt
+# #
+# # plt.plot(np.arange(len(nn.loss_list)),nn.loss_list)
+# # plt.show()
+#
+# print(nn.forward(x))

@@ -22,6 +22,7 @@ class TetrisBoardReader:
     def read(self, agent: TetrisAgent):
         board = agent.board.copy()
         board[board > 0] = 1
+        board[board < 0] = 0
         piece_number, position = agent.now_piece.piece_number, agent.now_piece.position
         board_list = self.read_of_piece(board, position, piece_number)
         if agent.hold_piece is None:
@@ -156,7 +157,6 @@ class TetrisBoardReader:
         while new_position[1].min() > 0:
             new_position[1] -= 1
         return new_position
-
 
 # p = TetrisBoardReader()
 #
