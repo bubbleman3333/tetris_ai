@@ -58,7 +58,7 @@ class TetrisPlayForAi:
         if self.move_controller.move_end:
             if self.tetris_ai.origin_board_input is not None:
                 score = self.tetris_agent.get_score()
-                print(score)
+                print("score:", score)
                 self.tetris_ai.train(score)
             move_list = self.tetris_ai.choice(self.tetris_agent)
             self.move_controller.set_move(move_list)
