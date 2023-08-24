@@ -56,11 +56,15 @@ class TetrisPlayForAi:
     def agent_play(self):
         self.reset()
         if self.move_controller.move_end:
+            if self.tetris_ai.origin_board_input is not None:
+                score = self.tetris_agent.get_score()
+                print(score)
+                self.tetris_ai.train(score)
             move_list = self.tetris_ai.choice(self.tetris_agent)
             self.move_controller.set_move(move_list)
         if self.tetris_agent.agent_move(self.move_controller.move()):
             self.draw_board()
-        self.root.after(100, self.agent_play)
+        self.root.after(300, self.agent_play)
         self.tetris_agent.update_success = False
 
     def reset(self):

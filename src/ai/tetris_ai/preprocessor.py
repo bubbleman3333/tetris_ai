@@ -36,7 +36,6 @@ class TetrisPreprocessor:
         """
         # 　穴の数をカウントする
         col_to_bytes = [common.hash_array(arr) for arr in array.T]
-
         return sum([self.hole_height_dic[col] for col in col_to_bytes])
 
     @staticmethod

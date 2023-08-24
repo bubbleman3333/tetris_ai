@@ -108,6 +108,8 @@ class TetrisBoardReader:
                 self.state.history.append(
                     (self.state.hold, self.piece_state.num_rotate, self.piece_state.num_move,
                      self.piece_state.num_drop, move[1][0] * i))
+                y, x = origin_position
+                board[y, x] = 1
                 return_array.append(self.locate(new_position=move_position, board=board))
 
         new_position = self.get_drop_position(board=board, new_position=origin_position.copy())
@@ -221,7 +223,6 @@ class PieceState:
         self.num_rotate = None
         self.num_move = None
         self.num_drop = None
-
 
 # p = TetrisBoardReader()
 #

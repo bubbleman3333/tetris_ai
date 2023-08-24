@@ -36,6 +36,7 @@ class MoveController:
                 self.move_list += abs(move_num) * [self.method_controller.move_left]
             else:
                 self.move_list += move_num * [self.method_controller.move_right]
+            self.move_list.append(self.method_controller.move_down)
         else:
             self.move_list.append(self.method_controller.drop)
 

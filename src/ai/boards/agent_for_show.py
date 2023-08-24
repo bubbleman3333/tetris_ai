@@ -55,6 +55,7 @@ class TetrisAgent:
             method_controller.hold: self.hold,
             method_controller.drop: self.drop
         }
+        self.score = 0
 
     def reset(self):
         self.next_block_changed = False
@@ -213,6 +214,7 @@ class TetrisAgent:
 
         if not self.move(self.no_move, deleted_highlight=False):
             self.end = True
+            self.score = -5
 
     def hold(self):
         if not self.hold_able:
@@ -246,8 +248,10 @@ class TetrisAgent:
     def delete_line(self, from_hold=False):
         temp = self.board[np.any(self.board == 0, axis=1)]
         if temp.shape[0] != self.board_height:
+            deleted_line = self.board_height - temp.shape[0]
+            self.score = deleted_line * 3
             self.board = np.concatenate(
-                (np.zeros((self.board_height - temp.shape[0], self.board_width)),
+                (np.zeros((deleted_line, self.board_width)).astype(int),
                  temp), axis=0)
             if not from_hold:
                 self.update_pos = None
@@ -272,6 +276,11 @@ class TetrisAgent:
 
     def agent_move(self, move_type):
         return self.method_dict[move_type]()
+
+    def get_score(self):
+        num = self.score
+        self.score = 0
+        return num
 
 
 class Piece:
