@@ -76,7 +76,7 @@ class TetrisAgent:
         self.deleted_next_mino = None
         self.end = False
 
-        self.board = np.zeros((self.board_height, self.board_width))
+        self.board = np.zeros((self.board_height, self.board_width)).astype(int)
 
     def rotate(self, rotate_matrix):
         if self.now_piece.piece_number == 5:

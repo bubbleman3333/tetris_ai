@@ -1,6 +1,7 @@
 import tkinter as tk
 from src.ai.boards.agent_for_show import TetrisAgent
 from src.ai.tetris_ai.ai_main import TetrisAI
+from src.ai.controller.move_controller import MoveController
 
 
 class TetrisPlayForAi:
@@ -26,6 +27,7 @@ class TetrisPlayForAi:
         self.highlight_color = self.tetris_agent.piece_color[8]
         self.set_root()
         self.tetris_ai = TetrisAI()
+        self.move_controller = MoveController()
         pass
 
     def set_root(self):
@@ -53,7 +55,10 @@ class TetrisPlayForAi:
 
     def agent_play(self):
         self.reset()
-        if self.tetris_agent.random_move():
+        if self.move_controller.move_end:
+            move_list = self.tetris_ai.choice(self.tetris_agent)
+            self.move_controller.set_move(move_list)
+        if self.tetris_agent.agent_move(self.move_controller.move()):
             self.draw_board()
         self.root.after(100, self.agent_play)
         self.tetris_agent.update_success = False

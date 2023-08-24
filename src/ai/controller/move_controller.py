@@ -6,9 +6,9 @@ class MoveController:
     def __init__(self):
         self.move_list = None
         self.method_controller = MethodController()
-        self.now_phase = 0
-        self.phase_dict = {}
-        self.now_rotate = None
+        self.move_limit = None
+        self.move_num = 0
+        self.move_end = True
 
     def set_move(self, move_list):
         self.move_list = []
@@ -39,5 +39,13 @@ class MoveController:
         else:
             self.move_list.append(self.method_controller.drop)
 
-    def move(self, agent: TetrisAgent):
-        return self.phase_dict[self.now_phase](agent)
+        self.move_limit = len(self.move_list)
+        self.move_end = False
+        self.move_num = 0
+
+    def move(self):
+        num = self.move_list[self.move_num]
+        self.move_num += 1
+        if self.move_num >= self.move_limit:
+            self.move_end = True
+        return num
