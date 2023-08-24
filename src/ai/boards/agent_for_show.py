@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Union
 from src.agent.conf_loader import TetrisConfLoader
+from src.ai.controller.method_controller import MethodController
 import random
 
 
@@ -42,8 +43,18 @@ class TetrisAgent:
         self.highlight_change = False
         self.highlight_positions = None
         self.highlight_deleted = None
+        method_controller = MethodController()
         self.method_list = [self.rotate_left, self.rotate_right, self.move_left, self.move_down, self.move_right,
                             self.hold, self.drop]
+        self.method_dict = {
+            method_controller.rotate_left: self.rotate_left,
+            method_controller.rotate_right: self.rotate_right,
+            method_controller.move_left: self.move_left,
+            method_controller.move_down: self.move_down,
+            method_controller.move_right: self.move_right,
+            method_controller.hold: self.hold,
+            method_controller.drop: self.drop
+        }
 
     def reset(self):
         self.next_block_changed = False
@@ -258,6 +269,9 @@ class TetrisAgent:
     def random_move(self):
         method = random.choice(self.method_list)
         return method()
+
+    def agent_move(self, move_type):
+        return self.method_dict[move_type]()
 
 
 class Piece:

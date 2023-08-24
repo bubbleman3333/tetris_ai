@@ -22,6 +22,7 @@ class TetrisAI:
 
     def choice(self, agent: TetrisAgent):
         scores = self.predict(agent)
+        return self.reader.state.history[scores.argmax()]
 
 
 
@@ -34,8 +35,9 @@ import time
 
 start = time.time()
 
-answer = ai.predict(agent=age)
-print(answer)
-print(answer.argmax())
-print(max(answer))
+# answer = ai.predict(agent=age)
+# print(answer)
+# print(answer.argmax())
+# print(max(answer))
+print(ai.choice(agent=age))
 print(time.time() - start)

@@ -1,5 +1,6 @@
 import tkinter as tk
 from src.ai.boards.agent_for_show import TetrisAgent
+from src.ai.tetris_ai.ai_main import TetrisAI
 
 
 class TetrisPlayForAi:
@@ -24,6 +25,7 @@ class TetrisPlayForAi:
         self.white = self.tetris_agent.piece_color[0]
         self.highlight_color = self.tetris_agent.piece_color[8]
         self.set_root()
+        self.tetris_ai = TetrisAI()
         pass
 
     def set_root(self):
@@ -87,7 +89,7 @@ class TetrisPlayForAi:
 
     def play(self):
         self.tetris_agent.set_random_block()
-        self.root.after(0, self.move_down)
+        # self.root.after(0, self.move_down)
         self.root.after(0, self.agent_play())
         self.root.mainloop()
 
