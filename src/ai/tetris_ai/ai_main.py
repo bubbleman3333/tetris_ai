@@ -22,6 +22,7 @@ class TetrisAI:
 
     def choice(self, agent: TetrisAgent):
         scores = self.predict(agent)
+        print(self.reader.state.history)
         return self.reader.state.history[scores.argmax()]
 
 
