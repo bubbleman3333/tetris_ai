@@ -15,12 +15,13 @@ class TetrisAI:
         self.processor = TetrisPreprocessor()
         self.board_list = None
         self.origin_board_input = None
+        self.gamma = 0.98
 
     def make_input(self, agent: TetrisAgent):
         board = agent.board.copy()
         board[board > 0] = 1
         board[board <= 0] = 0
-        self.origin_board_input = self.processor.make_input(board)
+        self.origin_board_input = np.array([self.processor.make_input(board)])
         self.board_list = self.reader.read(agent)
         input_ = np.array([self.processor.make_input(board) for board in self.board_list])
         return input_
@@ -35,9 +36,11 @@ class TetrisAI:
         return self.reader.state.history[self.arg_max]
 
     def train(self, r):
-        data = np.array([self.origin_board_input, self.input_[self.arg_max]])
-        target = np.array([r + self.scores[self.arg_max]] * 2).reshape((2, 1))
-        self.neural_net.train(data, target)
+        now_score = self.neural_net.forward(self.origin_board_input)
+        next_score = self.scores[self.arg_max]
+        new_score = now_score + self.neural_net.lr * (r + self.gamma * next_score - now_score)
+        target = np.array([new_score]).reshape((1, 1))
+        self.neural_net.train(np.array(self.origin_board_input), target)
 
 # age = TetrisAgent()
 #

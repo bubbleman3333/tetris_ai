@@ -90,7 +90,6 @@ class MeanSquaredError:
         self.y = y.reshape((t.shape[0], 1))
         self.t = t
         loss = 0.5 * np.sum((y - t) ** 2)
-        print(loss)
         return loss
 
     def backward(self):

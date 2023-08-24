@@ -85,8 +85,10 @@ class TetrisPreprocessor:
         ⑦高さの平均
         """
         height = self.calculate_col_height(board)
+        deleted_lines = self.calc_delete_lines(board)
+        height -= deleted_lines
         temp = np.array([
-            self.calc_delete_lines(board) * 5,  # 削除数は最大で4のため1/4でスケーリングする
+            deleted_lines * 5,  # 削除数は最大で4のため1/4でスケーリングする
             self.calc_hole_num(board) * 0.1,  # 穴の数は最大で200のため、1/200でスケーリングする
             self.calc_height_std(height),
             self.calc_average_diff(height),

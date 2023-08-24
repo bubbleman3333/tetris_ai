@@ -214,7 +214,7 @@ class TetrisAgent:
 
         if not self.move(self.no_move, deleted_highlight=False):
             self.end = True
-            self.score = -5
+            self.score = -10
 
     def hold(self):
         if not self.hold_able:
@@ -240,9 +240,12 @@ class TetrisAgent:
     def drop(self):
         origin_position = self.now_piece.center + self.now_piece.position
         self.locate(origin_position, self.highlight_positions, 1)
-        self.delete_line()
+        result = self.delete_line()
         self.hold_able = True
         self.set_random_block()
+        if result:
+            self.update_pos = None
+            self.update_success = False
         return True
 
     def delete_line(self, from_hold=False):
