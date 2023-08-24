@@ -1,8 +1,9 @@
 import numpy as np
+from src.confs import base_config
 
 
 class NeuralNetWork:
-    def __init__(self, input_num, middle_num, middle_weight=None, output_weight=None):
+    def __init__(self, input_num, middle_num):
         self.input_num = input_num
         self.middle_num = middle_num
         self.lr = 0.3
@@ -14,6 +15,7 @@ class NeuralNetWork:
         self.params = [self.middle_affine, self.output_affine]
         self.last_layer = MeanSquaredError()
         self.loss_list = []
+        self.t = 0
 
     def forward(self, input_, target=None):
         for layer in self.layers:
@@ -40,6 +42,16 @@ class NeuralNetWork:
         self.forward(input_, target_)
         self.backward()
         self.update()
+        self.t += 1
+        if self.t % 100 == 0:
+            self.save()
+
+    def save(self):
+        param_dir = base_config.PARAM_PATH
+        np.save(param_dir / "middle_w", self.middle_affine.w)
+        np.save(param_dir / "middle_b", self.middle_affine.b)
+        np.save(param_dir / "output_w", self.output_affine.w)
+        np.save(param_dir / "output_b", self.output_affine.b)
 
 
 class Affine:
@@ -95,7 +107,6 @@ class MeanSquaredError:
     def backward(self):
         d_loss = self.y - self.t
         return d_loss
-
 
 # nn = NeuralNetWork(10, 100)
 # num_target = 10
