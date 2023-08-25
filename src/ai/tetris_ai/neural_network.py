@@ -3,14 +3,19 @@ from src.confs import base_config
 
 
 class NeuralNetWork:
-    def __init__(self, input_num, middle_num):
+    def __init__(self, input_num, middle_num, load_params=True):
         self.input_num = input_num
         self.middle_num = middle_num
         self.lr = 0.3
-        self.middle_affine = Affine(np.random.rand(self.input_num, self.middle_num) - 0.5,
-                                    np.random.rand(self.middle_num) - 0.5)
-        self.output_affine = Affine(np.random.rand(self.middle_num, 1) - 0.5,
-                                    np.random.rand() - 0.5)
+        if load_params:
+            mw, mb, ow, ob = self.load_param()
+        else:
+            mw = np.random.rand(self.input_num, self.middle_num) - 0.5
+            mb = np.random.rand(self.middle_num) - 0.5
+            ow = np.random.rand(self.middle_num, 1) - 0.5
+            ob = np.random.rand() - 0.5
+        self.middle_affine = Affine(mw, mb)
+        self.output_affine = Affine(ow, ob)
         self.layers = [self.middle_affine, Relu(), self.output_affine]
         self.params = [self.middle_affine, self.output_affine]
         self.last_layer = MeanSquaredError()
@@ -52,6 +57,16 @@ class NeuralNetWork:
         np.save(param_dir / "middle_b", self.middle_affine.b)
         np.save(param_dir / "output_w", self.output_affine.w)
         np.save(param_dir / "output_b", self.output_affine.b)
+
+    @staticmethod
+    def load_param():
+        param_dir = base_config.PARAM_PATH
+        middle_w = np.load(param_dir / "middle_w.npy")
+        middle_b = np.load(param_dir / "middle_b.npy")
+        output_w = np.load(param_dir / "output_w.npy")
+        output_b = np.load(param_dir / "output_b.npy")
+        print("weight loaded")
+        return middle_w, middle_b, output_w, output_b
 
 
 class Affine:
