@@ -8,7 +8,7 @@ import numpy as np
 class TetrisAI:
     def __init__(self):
         self.reader = TetrisBoardReader()
-        self.neural_net = NeuralNetWork(input_num=18, middle_num=50)
+        self.neural_net = NeuralNetWork(input_num=17, middle_num=100, load_params=True, file_name="5", lr=0.7)
         self.input_ = None
         self.scores = None
         self.arg_max = None
@@ -38,6 +38,7 @@ class TetrisAI:
     def train(self, r):
         now_score = self.neural_net.forward(self.origin_board_input)
         next_score = self.scores[self.arg_max]
+        print(next_score)
         new_score = now_score + self.neural_net.lr * (r + self.gamma * next_score - now_score)
         target = np.array([new_score]).reshape((1, 1))
         self.neural_net.train(np.array(self.origin_board_input), target)

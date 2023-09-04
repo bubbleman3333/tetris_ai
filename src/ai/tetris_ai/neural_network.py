@@ -3,10 +3,11 @@ from src.confs import base_config
 
 
 class NeuralNetWork:
-    def __init__(self, input_num, middle_num, load_params=True):
+    def __init__(self, input_num, middle_num, load_params=True, file_name="", lr=0.3):
         self.input_num = input_num
         self.middle_num = middle_num
-        self.lr = 0.3
+        self.lr = lr
+        self.file_name = file_name
         if load_params:
             mw, mb, ow, ob = self.load_param()
         else:
@@ -50,21 +51,21 @@ class NeuralNetWork:
         self.t += 1
         if self.t % 100 == 0:
             self.save()
+            print("saved")
 
     def save(self):
         param_dir = base_config.PARAM_PATH
-        np.save(param_dir / "middle_w", self.middle_affine.w)
-        np.save(param_dir / "middle_b", self.middle_affine.b)
-        np.save(param_dir / "output_w", self.output_affine.w)
-        np.save(param_dir / "output_b", self.output_affine.b)
+        np.save(param_dir / f"middle_w{self.file_name}", self.middle_affine.w)
+        np.save(param_dir / f"middle_b{self.file_name}", self.middle_affine.b)
+        np.save(param_dir / f"output_w{self.file_name}", self.output_affine.w)
+        np.save(param_dir / f"output_b{self.file_name}", self.output_affine.b)
 
-    @staticmethod
-    def load_param():
+    def load_param(self):
         param_dir = base_config.PARAM_PATH
-        middle_w = np.load(param_dir / "middle_w.npy")
-        middle_b = np.load(param_dir / "middle_b.npy")
-        output_w = np.load(param_dir / "output_w.npy")
-        output_b = np.load(param_dir / "output_b.npy")
+        middle_w = np.load(param_dir / f"middle_w{self.file_name}.npy")
+        middle_b = np.load(param_dir / f"middle_b{self.file_name}.npy")
+        output_w = np.load(param_dir / f"output_w{self.file_name}.npy")
+        output_b = np.load(param_dir / f"output_b{self.file_name}.npy")
         print("weight loaded")
         return middle_w, middle_b, output_w, output_b
 

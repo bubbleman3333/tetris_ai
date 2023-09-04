@@ -214,7 +214,7 @@ class TetrisAgent:
 
         if not self.move(self.no_move, deleted_highlight=False):
             self.end = True
-            self.score = -10
+            self.score = -20
 
     def hold(self):
         if not self.hold_able:
