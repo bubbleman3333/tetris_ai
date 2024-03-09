@@ -38,7 +38,11 @@ class TetrisPreprocessor:
         """
         # 　穴の数をカウントする
         col_to_bytes = [common.hash_array(arr) for arr in board.T]
-        return sum([self.hole_height_dic[col] for col in col_to_bytes])
+        hole_num = sum([self.hole_height_dic[col] for col in col_to_bytes])
+
+        print(f"穴の数:{hole_num}")
+
+        return hole_num
 
     @staticmethod
     def calc_height_std(height) -> np.float64:
