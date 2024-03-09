@@ -285,7 +285,7 @@ class TetrisAgent:
         hole_nums = calc_hole_num(create_one_or_zero_board(self.board, True))
         # print(self.board)
         print(f"穴の数:{hole_nums}")
-        num = self.score - hole_nums * 0.05
+        num = self.score - hole_nums * 0.2
         self.score = 0
         return num
 

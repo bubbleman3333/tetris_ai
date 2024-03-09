@@ -9,7 +9,7 @@ from src.common_methods.board_evaluate import create_one_or_zero_board
 class TetrisAI:
     def __init__(self):
         self.reader = TetrisBoardReader()
-        self.neural_net = NeuralNetWork(input_num=17, middle_num=100, load_params=True, file_name="5", lr=0.7)
+        self.neural_net = NeuralNetWork(input_num=17, middle_num=100, load_params=False, file_name="5", lr=0.7)
         self.input_ = None
         self.scores = None
         self.arg_max = None
