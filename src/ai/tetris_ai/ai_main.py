@@ -37,7 +37,6 @@ class TetrisAI:
     def train(self, r):
         now_score = self.neural_net.forward(self.origin_board_input)
         next_score = self.scores[self.arg_max]
-        print(next_score)
         new_score = now_score + self.neural_net.lr * (r + self.gamma * next_score - now_score)
         target = np.array([new_score]).reshape((1, 1))
         self.neural_net.train(np.array(self.origin_board_input), target)

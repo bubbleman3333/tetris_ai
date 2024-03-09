@@ -57,6 +57,7 @@ class TetrisAgent:
             method_controller.drop: self.drop
         }
         self.score = 0
+        self.block_count = 0
 
     def reset(self):
         self.next_block_changed = False
@@ -79,6 +80,7 @@ class TetrisAgent:
         self.end = False
 
         self.board = np.zeros((self.board_height, self.board_width)).astype(int)
+        self.block_count = 0
 
     def rotate(self, rotate_matrix):
         if self.now_piece.piece_number == 5:
@@ -125,6 +127,7 @@ class TetrisAgent:
             return True
 
     def select_random_number(self):
+        self.block_count += 1
         if len(self.remain) == 0:
             self.remain = list(range(1, 8))
         return self.remain.pop(np.random.randint(len(self.remain)))
@@ -282,9 +285,7 @@ class TetrisAgent:
         return self.method_dict[move_type]()
 
     def get_score(self):
-        hole_nums = calc_hole_num(create_one_or_zero_board(self.board, True))
-        # print(self.board)
-        print(f"穴の数:{hole_nums}")
+        hole_nums = calc_hole_num(create_one_or_zero_board(self.board))
         num = self.score - hole_nums * 0.2
         self.score = 0
         return num
