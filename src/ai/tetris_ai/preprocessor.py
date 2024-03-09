@@ -5,6 +5,7 @@ import time
 
 from src.ai.tetris_ai.loader import TetrisConfLoader
 from src.tools import common
+from src.common_methods.board_evaluate import calc_hole_num
 
 
 class TetrisPreprocessor:
@@ -29,7 +30,8 @@ class TetrisPreprocessor:
         p = self.height - p
         return np.delete(p, np.argmin(p))
 
-    def calc_hole_num(self, board) -> int:
+    @staticmethod
+    def calc_hole_num(board) -> int:
         """
         穴の数をカウントする
         :param board:
@@ -37,8 +39,7 @@ class TetrisPreprocessor:
         穴の数の合計
         """
         # 　穴の数をカウントする
-        col_to_bytes = [common.hash_array(arr) for arr in board.T]
-        return sum([self.hole_height_dic[col] for col in col_to_bytes])
+        return calc_hole_num(board)
 
     @staticmethod
     def calc_height_std(height) -> np.float64:
