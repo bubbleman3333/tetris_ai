@@ -1,44 +1,23 @@
-from collections import defaultdict
+n, m = list(map(int, input().split(" ")))
 
-dic = defaultdict(dict)
-n = int(input())
-for i in range(1, n):
-    for idx, d in enumerate(list(map(int, input().split(" ")))):
-        opp = i + idx + 1
-        dic[i][opp] = d
-        dic[opp][i] = d
+a = list(map(int, input().split(" ")))
 
-remain = [False] * (1 + n)
-remain[0] = True
-now_max = 0
+b = list(range(n + 1))
 
-t = 0
+base = b.copy()
+for i in range(m):
+    temp = a[i]
+    base[temp], base[temp + 1] = base[temp + 1], base[temp]
 
+pos = [0] * (n + 1)
+for i in range(1, n + 1):
+    pos[base[i]] = i
 
-def read(number, score, odd):
-    global t
-    t += 1
-    global now_max
-    remain[number] = True
-    rem = [idx for idx, v in enumerate(remain) if not v]
-    if len(rem) == 0:
-        now_max = max(now_max, score)
-        remain[number] = False
-        return
-    for i in rem:
-        if odd:
-            c = dic[number][i]
-            temp_score = score + c
-        else:
-            temp_score = score
-        read(i, temp_score, not odd)
-    remain[number] = False
-
-
-import time
-
-start = time.time()
-read(1,0,0)
-print(now_max)
-print(time.time() - start)
-print(t)
+for i in a:
+    if b[i] == 1:
+        print(pos[b[i + 1]])
+    elif b[i + 1] == 1:
+        print(pos[b[i]])
+    else:
+        print(pos[1])
+    b[i], b[i + 1] = b[i + 1], b[i]
