@@ -3,6 +3,7 @@ from src.ai.tetris_ai.neural_network import NeuralNetWork
 from src.ai.tetris_ai.preprocessor import TetrisPreprocessor
 from src.ai.boards.agent_for_show import TetrisAgent
 import numpy as np
+from src.common_methods.board_evaluate import create_one_or_zero_board
 
 
 class TetrisAI:
@@ -18,9 +19,7 @@ class TetrisAI:
         self.gamma = 0.98
 
     def make_input(self, agent: TetrisAgent):
-        board = agent.board.copy()
-        board[board > 0] = 1
-        board[board <= 0] = 0
+        board = create_one_or_zero_board(agent.board)
         self.origin_board_input = np.array([self.processor.make_input(board)])
         self.board_list = self.reader.read(agent)
         input_ = np.array([self.processor.make_input(board) for board in self.board_list])

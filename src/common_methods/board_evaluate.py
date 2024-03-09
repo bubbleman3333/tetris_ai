@@ -12,3 +12,10 @@ def calc_hole_num(board:np.array):
 
     return hole_num
 
+
+def create_one_or_zero_board(board:np.array):
+    board = board.copy()
+    board[board > 0] = 1
+    board[board <= 0] = 0
+    return board
+

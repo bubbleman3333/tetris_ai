@@ -1,14 +1,15 @@
 import numpy as np
 
-row = 5
-x = np.random.randint(0, 2, (row, 3))
+x = np.zeros((3,3))
+
+
+def get_copy(b):
+    b = b.copy()
+    b[b<1] = 1
+    return b
 
 print(x)
 
-one_located_max = np.argmax(x, axis=0)
-
-print(one_located_max)
-max_idx = max(one_located_max)
-print(x[:max_idx])
-invalid_rows = row - max_idx
-print(invalid_rows,"行")
+t = get_copy(x)
+print(t)
+print(x)

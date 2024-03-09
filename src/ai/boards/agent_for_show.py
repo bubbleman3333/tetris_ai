@@ -3,6 +3,7 @@ from typing import Union
 from src.agent.conf_loader import TetrisConfLoader
 from src.ai.controller.method_controller import MethodController
 import random
+from src.common_methods.board_evaluate import calc_hole_num, create_one_or_zero_board
 
 
 class TetrisAgent:
@@ -281,6 +282,9 @@ class TetrisAgent:
         return self.method_dict[move_type]()
 
     def get_score(self):
+        hole_nums = calc_hole_num(create_one_or_zero_board(self.board))
+        print(self.board)
+        print(f"穴の数:{hole_nums}")
         num = self.score
         self.score = 0
         return num
