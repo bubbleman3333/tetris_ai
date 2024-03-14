@@ -1,15 +1,8 @@
-import numpy as np
+import pickle
+from src.confs import base_config
 
-x = np.zeros((3,3))
+s = pickle.load(open(r"C:\Users\aiueo\tetris_ai\src\ai\genetic_algorithm\test2.pickle", "rb"))
 
+path = base_config.CONF_PATH / "populations2.pickle"
 
-def get_copy(b):
-    b = b.copy()
-    b[b<1] = 1
-    return b
-
-print(x)
-
-t = get_copy(x)
-print(t)
-print(x)
+pickle.dump(s[:5], open(path, "wb"))

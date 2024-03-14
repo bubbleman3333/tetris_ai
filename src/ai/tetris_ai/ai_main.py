@@ -1,15 +1,19 @@
 from src.ai.tetris_ai.reader import TetrisBoardReader
 from src.ai.tetris_ai.neural_network import NeuralNetWork
+from src.ai.tetris_ai.neural_netword_by_genetic import NeuralNetWorkByGenetic
 from src.ai.tetris_ai.preprocessor import TetrisPreprocessor
 from src.ai.boards.agent_for_show import TetrisAgent
+from src.confs import base_config
 import numpy as np
+import pickle
 from src.common_methods.board_evaluate import create_one_or_zero_board
 
 
 class TetrisAI:
     def __init__(self):
         self.reader = TetrisBoardReader()
-        self.neural_net = NeuralNetWork(input_num=17, middle_num=100, load_params=False, file_name="5", lr=0.7)
+        populations = pickle.load(open(base_config.CONF_PATH / "populations2.pickle", "rb"))
+        self.neural_net = NeuralNetWorkByGenetic(*populations[0])
         self.input_ = None
         self.scores = None
         self.arg_max = None

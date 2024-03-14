@@ -285,8 +285,8 @@ class TetrisAgent:
         return self.method_dict[move_type]()
 
     def get_score(self):
-        hole_nums = calc_hole_num(create_one_or_zero_board(self.board))
-        num = self.score - hole_nums * 0.2
+        # hole_nums = calc_hole_num(create_one_or_zero_board(self.board))
+        num = self.score
         self.score = 0
         return num
 

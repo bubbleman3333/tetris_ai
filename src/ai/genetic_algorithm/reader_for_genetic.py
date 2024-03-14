@@ -23,20 +23,13 @@ class TetrisBoardReader:
     def reset(self):
         self.state.reset()
 
-    def read(self, agent: TetrisAgent):
+    def read(self, board: np.array, piece_number,position ):
         self.reset()
-        board = agent.board.copy()
+        position = position.copy()
+        board = board.copy()
         board[board > 0] = 1
         board[board < 0] = 0
-        piece_number, position = agent.now_piece.piece_number, agent.now_piece.position
         board_list = self.__read_of_piece(board, position, piece_number)
-        if agent.hold_piece is None:
-            next_piece_number, position = agent.next_piece.piece_number, agent.next_piece.position
-        else:
-            next_piece_number, position = agent.hold_piece.piece_number, agent.hold_piece.position
-        if next_piece_number != piece_number:
-            self.state.hold = True
-            board_list += self.__read_of_piece(board=board, position=position, piece_number=piece_number)
         return board_list
 
     def __read_of_piece(self, board, position, piece_number):
